@@ -240,7 +240,7 @@ Imager
     
 =head1 AUTHOR
 
-Yuto Kawamura, E<lt>rivervillage.braveperson@gmail.comE<gt>
+Yuto Kawamura(kawamuray), E<lt>kawamuray.dadada@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
