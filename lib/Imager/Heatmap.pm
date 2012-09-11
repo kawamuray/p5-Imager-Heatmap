@@ -195,60 +195,232 @@ __END__
 
 =head1 NAME
 
-Imager::Heatmap - Perl extension for drawing Heatmap using Imager(3)
+Imager::Heatmap - Perl extension for drawing Heatmap using Imager
 
 =head1 SYNOPSIS
 
     use Imager::Heatmap;
-    my $hmap = Imager::Heatmap->new({
-        xsize       => 640,    # image xsize
-        ysize      => 480,    # image ysize
-        xsigma       => 10,     # X-dimentional sigma value
-        ysigma       => 10,     # Y-dimentional sigma value
-        max_data_at_time       => 10000,  # max number of points which keeps in memory at same time
-    });
+    my $hmap = Imager::Heatmap->new(
+        xsize  => 640,        # Image width
+        ysize  => 480,        # Image height
+        xsigma => 10,         # X-dimentional sigma value
+        ysigma => 10,         # Y-dimentional sigma value
+    );
 
+    # Drawing heatmap
+    $hmap->draw(\@point_datas); # @point_datas should be: ( [ x1, y1, weight1 ], [ x2, y2, weight2 ] ... )
+
+    or 
+
+    # Example to draw heatmap by data from file
     open my $fh, '<', /path/to/data/file or die "Can't open file $file: $!";
 
-    $hmap->fetch_method(sub {
-        defined(my $line = <$fh>) or return;   # return undef if EOF appeared
+    # Closure should return a data(x, y, weight(optional)) for each call
+    $hmap->draw(sub {
+        defined(my $line = <$fh>) or return; # Return undef to notify end of data
         chomp $line;
-        my @f = split /\s/, $line;
-
-        return ($f[0]*10, $f[1]*10);
+        my ($x, $y, $weight) = split /\s/, $line;
+        return ($x, $y, $weight);
     });
 
-    $hmap->process; # start fetching and calculating normal distribution
+    close $fh;
 
-    $hmap->img->write(file => '/path/to/outfile'); # you can access Imager instance using img method
+    # After drawing finished, you can use img method to access Imager instance
 
+    $hmap->img->write( file => '/path/to/outfile' ); # Write to file
+    $img->rubthrough( src => $hmap->img );           # Overlay on other images
+
+    # And you can access probability density matrix using matrix method if you like...
+    $hmap->matrix;
 
 =head1 DESCRIPTION
 
-Imager::Heatmap draws HEATMAP using Imager(3).
-This module generates normal distribution matrix from input data.
-Then convert the matrix to color information and draw it to image.
-You can specified (X|Y)-dimentional sigma value and probability variable.
-# write about accessing matrix
-# write abound parallel processing
+Imager::Heatmap is a module to draw heatmap using Imager.
+
+This module calculates probability density matrix from input data and
+map a color for each pixels to represent density of input data.
 
 =head1 METHODS
 
+=head2 new()
+
+Create new instance of Imager::Heatmap.
+You can specify some options as follows.
+See the accessors section for more details about each parameters.
+
+    $hmap = Imager::Heatmap->new( xsize => 300, ysize => 300 );
+    $hmap = Imager::Heatmap->new( img => $imager_instance );
+
+=head3 Options
+
+=over
+
+=item o img         (required if you don't specify xsize and ysize)
+
+A blessed object of Imager to render heatmap.
+Image's xsize and ysize will automatically set to Imager::Heatmap instance.
+
+Option xsize and ysize will ignored if you specify this option.
+
+=item o xsize       (required if you don't specify img)
+
+X-dimentional size of heatmap image.
+ 
+=item o ysize       (required if you don't specify img)
+
+Y-dimentional size of heatmap image.
+
+=item o xsigma      (optional, default: 1.0)
+
+X-dimentional sigma value.
+
+=item o ysigma      (optional, default: 1.0)
+
+Y-dimentional sigma value.
+
+=item o correlation (optional, default: 0.0)
+
+Correlation between X and Y.
+
+=item o max_data_at_time (optional, default: undef)
+
+Max number of data that could process at a time.
+
+=back
+
+=head2 xsize()
+
+Set/Get the X-dimentional size of heatmap image.
+
+    $hmap->xsize(100);
+    $xsize = $hmap->xsize;
+
+=head2 ysize()
+
+Set/Get the Y-dimentional size of heatmap image.
+
+    $hmap->ysize(100);
+    $ysize = $hmap->ysize;
+
+=head2 xsigma()
+    
+Set/Get the X-dimentional sigma value.
+This value represents X-dimentional standard deviation.
+This value should be positive number.
+
+    $hmap->xsigma(10.0);
+    $xsigma = $hmap->xsigma;
+
+=head2 ysigma()
+    
+Set/Get the Y-dimentional sigma value.
+This value represents Y-dimentional standard deviation.
+This value should be positive number.
+
+    $hmap->ysigma(10.0);
+    $ysigma = $hmap->ysigma;
+
+=head2 correlation()
+    
+Set/Get the correlation coefficient.
+This value represents correlation between X and Y.
+This value should be the number between -1 and 1. (includeing -1 and 1)
+
+    $hmap->correlation(0.5);
+    $correlation = $hmap->correlation;
+
+=head2 max_data_at_time()
+
+Set/Get the Max number of data that could process at a time.
+This value is used when you specify closure as data source to draw method.
+Imager::Heatmap doesn't fetch data further than this value,
+but continue to fetch remaining datas after processed existing datas.
+
+    $hmap->max_data_at_time(50000);
+    $max_data_at_time = $hmap->max_data_at_time;
+
+If you don't need to specify limit for fetching data, set undef(or 0) to let it unlimited.
+
+=head2 matrix()
+
+Get the processed probability density matrix.
+If you call this before any data has been processed, you will just get the undef.
+
+    $matrix = $hmap->matrix;
+
+Return value is flat array. You can access the value of pixel(x,y) as follows:
+
+    $pixel_value = $matrix->[$y * $hmap->xsize + $x];
+
+=head2 img()
+
+Set/Get a Imager instance the target to draw a heatmap.
+The argument must be a blessed object of Imager and it should be a 4-channels image.
+
+    $img = $hmap->img;
+    $hmap->img(Imager->new( xsize    => $xsize,
+                            ysize    => $ysize,
+                            channels => 4 ));
+
+=head2 generate_matrix()
+
+Calculates probability density matrix of input datas.
+This method will internally called by draw() method.
+
+    $matrix = $img->generate_matrix($data_source);
+
+You can find the equation used to calculate 2-dimentional probability density matrix
+can be found at following location:
+
+    http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
+
+=head2 draw()
+
+Draw a heatmap from the passed data source.
+This method may be take a while if the datas are large.
+
+    $img->draw($data_source);
+
+The argument data_source should be a arrayref or a coderef.
+
+If it is a arrayref, each element of array should contain
+x([0]), y([1]), and optionally weight([2]) as follows:
+    
+$data_source = [ [ x1, y1, weight1 ], [ x2, y2, weight2 ] ... ];
+
+Else if it is a code ref, it should return 2 or 3 elements as following for each call:
+
+$data_source = sub { (x, y) };
+
+or
+
+$data_source = sub { (x, y, weight) };
+
+It should return undef to notify end of data.
+
+Commonly, the default value of weight is 1.
+
+X, Y and weight will implicitly cast to integer in XS,
+so it doesn't make any sense specifying real numbers to these parameters.
+
 =head1 SEE ALSO
 
-Imager
+Imager(3)
     
+The equation used to calculate 2-dimentional probability density matrix: 
+    Multivariate normal distribution - Wikipedia, the free encyclopedia
+        http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
+
 =head1 AUTHOR
 
-Yuto Kawamura(kawamuray), E<lt>kawamuray.dadada@gmail.comE<gt>
+Yuto KAWAMURA(kawamuray), E<lt>kawamuray.dadada@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2012 by Yuto Kawamura
+Copyright (C) 2012 by Yuto KAWAMURA(kawamuray)
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.12.3 or,
 at your option, any later version of Perl 5 you may have available.
-
 
 =cut
