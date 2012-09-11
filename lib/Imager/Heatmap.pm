@@ -135,33 +135,24 @@ sub img {
     return $self->{img};
 }
 
-sub generate_matrix {
-    my ($self, $data_src) = @_;
+sub add_data {
+    my ($self, @insert_datas) = @_;
 
-    if (ref $data_src eq 'ARRAY') {
-        my @data_src_copy = @{ $data_src };
-        $data_src = sub {
-            my $point = shift @data_src_copy or return;
-            return @{ $point };
-        };
-    } elsif (ref $data_src ne 'CODE') {
-        croak "dara_src must be a ARRAY ref or a CODE ref";
-    }
-
-    # To avoid "Use of uninitialized..." warnings
-    my $max_data_at_time = $self->max_data_at_time // 0;
+    # Initialize array for size xsize * ysize and fill it by zero
+    my $matrix = $self->matrix || [ (0)x($self->xsize*$self->ysize) ];
 
     $self->{matrix} = xs_generate_matrix(
-        $self->xsize, $self->ysize,
+        $matrix, $self->xsize, $self->ysize,
         $self->xsigma, $self->ysigma, $self->correlation,
-        $data_src, $max_data_at_time,
+        \@insert_datas,
     );
 }
 
 sub draw {
-    my ($self, $data_src) = @_;
+    my ($self) = @_;
 
-    my $matrix  = $self->generate_matrix($data_src);
+    my $matrix  = $self->matrix;
+
     my ($w, $h) = ($self->xsize, $self->ysize);
     my $img     = $self->img;
     my $max     = max(@{ $matrix });

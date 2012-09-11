@@ -29,29 +29,28 @@ GetOptions(
         die "Option $opt is required." unless defined $opts{$opt};
     }
 
-    my $hmap = Imager::Heatmap->new({
-        width       => $opts{width},
-        height      => $opts{height},
-        sig_x       => 10,
-        sig_y       => 10,
-        limit       => 10000,
-    });
+    my $hmap = Imager::Heatmap->new(
+        xsize            => $opts{width},
+        ysize            => $opts{height},
+        xsigma           => 10,
+        ysigma           => 10,
+    );
 
     my $file = shift;
+    my @insert_datas;
     open my $fh, '<', $file or die "Can't open file $file: $!";
+    while (my $line = <$fh>) {
+        chomp $line;
+        push @insert_datas, [ split /\s/, $line ];
+    }
+    close $fh;
 
     my $hratio = $opts{width} / $opts{'src-width'};
     my $vratio = $opts{height} / $opts{'src-height'};
-    $hmap->fetcher(sub {
-        defined(my $line = <$fh>) or return;
-        chomp $line;
-        my @f = split $delimiter{$opts{format}}, $line;
-        $f[2] = 1 if @f == 2;
 
-        return ($f[0]*$hratio, $f[1]*$vratio);
-    });
+    $hmap->add_data(@insert_datas);
 
-    $hmap->process;
+    $hmap->draw;
     $hmap->img->write(file => $opts{output});
 
     close $fh;

@@ -21,11 +21,13 @@ sub get_data_src {
     my $path = File::Spec->catfile($resources_dir, $src_file);
     open my $fh, '<', $path or die "Can't open file $path: $!";
 
-    return sub {
-        defined(my $line = <$fh>) or return;
+    my @insert_datas;
+    while (my $line = <$fh>) {
         chomp $line;
-        return split /\s/, $line;
-    };
+        push @insert_datas, [ split /\s/, $line ];
+    }
+
+    return @insert_datas;
 }
 
 my $hmap = Imager::Heatmap->new(
@@ -38,12 +40,14 @@ my $hmap = Imager::Heatmap->new(
 # Run following to re-generate test images.
 # perl t/02_image.t generate
 if (@ARGV && shift @ARGV eq 'generate') {
-    $hmap->draw( get_data_src 'sample.tsv' );
+    $hmap->add_data( get_data_src 'sample.tsv' );
     $hmap->img->write( file => File::Spec->catfile($resources_dir, 'sample.png') );
 } else {
 
     subtest "Basic image generation" => sub {
-        $hmap->draw( get_data_src 'sample.tsv' );
+        $hmap->add_data( get_data_src 'sample.tsv' );
+        $hmap->draw;
+        $hmap->img->write(file => '/tmp/test.png');
         is_image $hmap->img, read_img('sample.png'), "Result image comparison";
     };
 
@@ -51,7 +55,8 @@ if (@ARGV && shift @ARGV eq 'generate') {
 
     subtest "Image generation with limited data fetch" => sub {
         $hmap->max_data_at_time(10);
-        $hmap->draw( get_data_src 'sample.tsv' );
+        $hmap->add_data( get_data_src 'sample.tsv' );
+        $hmap->draw;
         is_image $hmap->img, read_img('sample.png'), "Result image comparison";
     };
 
