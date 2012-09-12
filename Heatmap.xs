@@ -95,12 +95,19 @@ calc_probability_density(density_matrix_t *dm, AV *insert_datas)
                 xd = x - point[0];
                 yd = y - point[1];
 
-                SV *tmp = *av_fetch(dm->matrix, x+w*y, 1);
-                double value = ((SvOK(tmp)) ? SvNV(tmp) : 0.0) + exp(
+                SV **pixel_valsv = av_fetch(dm->matrix, x+w*y, 1);
+                if (pixel_valsv == NULL)
+                    croak("Failed fetching value of matrix[%d]", x+w*y);
+
+                double pixel_val = 0.0;
+                if (SvOK(*pixel_valsv))
+                    pixel_val = SvNV(*pixel_valsv);
+
+                pixel_val += exp(
                     -(xd*xd/xsig_sq + yd*yd/ysig_sq - alpha*xd*yd/xysig_mul) / beta
                 ) * point[2];
 
-                av_store(dm->matrix, x+w*y, newSVnv(value));
+                sv_setnv(*pixel_valsv, pixel_val);
             }
         }
     }
