@@ -93,7 +93,7 @@ sub correlation {
 
 sub matrix { (shift)->{matrix} }
 
-sub add_data {
+sub insert_datas {
     my ($self, @insert_datas) = @_;
 
     # Initialize array for size xsize * ysize and fill it by zero

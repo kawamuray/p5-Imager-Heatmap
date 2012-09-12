@@ -40,14 +40,14 @@ my $hmap = Imager::Heatmap->new(
 # Run following to re-generate test images.
 # perl t/02_image.t generate
 if (@ARGV && shift @ARGV eq 'generate') {
-    $hmap->add_data( get_data_src 'sample.tsv' );
+    $hmap->insert_datas( get_data_src 'sample.tsv' );
     my $img = Imager->new(xsize => $hmap->xsize, ysize => $hmap->ysize, channels => 4);
     $hmap->draw($img);
     $img->write( file => File::Spec->catfile($resources_dir, 'sample.png') );
 } else {
 
     subtest "Basic image generation" => sub {
-        $hmap->add_data( get_data_src 'sample.tsv' );
+        $hmap->insert_datas( get_data_src 'sample.tsv' );
         my $img = Imager->new(xsize => $hmap->xsize, ysize => $hmap->ysize, channels => 4);
         $hmap->draw($img);
         $img->write(file => '/tmp/test.png');
