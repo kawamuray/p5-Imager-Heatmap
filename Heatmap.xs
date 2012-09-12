@@ -60,11 +60,6 @@ static inline min(int a, int b) { return (a < b) ? a : b; }
 static void
 calc_probability_density(density_matrix_t *dm, AV *insert_datas)
 {
-    int  point[3];
-    int  x, y;
-    int  x_beg, y_beg, x_end, y_end;
-    int  xd, yd;
-
     const int w = dm->xsize, h = dm->ysize;
 
     /* Calculate things to not calculate these again. */
@@ -84,16 +79,18 @@ calc_probability_density(density_matrix_t *dm, AV *insert_datas)
      * Multivariate normal distribution - Wikipedia, the free encyclopedia
      *    http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
      */
+    int point[3];
     while (fetch_insert_data(insert_datas, point)) {
-        x_beg = max(0, point[0] - x_effect_range);
-        x_end = min(w, point[0] + x_effect_range);
-        y_beg = max(0, point[1] - y_effect_range);
-        y_end = min(h, point[1] + y_effect_range);
+        int x_beg = max(0, point[0] - x_effect_range);
+        int x_end = min(w, point[0] + x_effect_range);
+        int y_beg = max(0, point[1] - y_effect_range);
+        int y_end = min(h, point[1] + y_effect_range);
 
+        int x, y;
         for (x = x_beg; x < x_end; x++) {
             for (y = y_beg; y < y_end; y++) {
-                xd = x - point[0];
-                yd = y - point[1];
+                int xd = x - point[0];
+                int yd = y - point[1];
 
                 SV **pixel_valsv = av_fetch(dm->matrix, x+w*y, 1);
                 if (pixel_valsv == NULL)
