@@ -9,7 +9,6 @@ use Imager;
 use List::Util qw/ max /;
 
 our $VERSION = '0.01';
-our $DEBUG = 0;
 our %DEFAULTS = (
     xsigma           => 1,
     ysigma           => 1,

@@ -18,10 +18,6 @@ typedef struct {
     double  correlation; /* Correlation between x and y */
 } density_matrix_t;
 
-static int debug_flag;
-
-/* TODO: make debug output(for testing) */
-
 static int
 fetch_insert_data(AV *insert_datas, int buf[3])
 {
@@ -145,11 +141,6 @@ xs_generate_matrix(perlarray_matrix, xsize, ysize, xsigma, ysigma, correlation, 
     AV          *insert_datas;
 
     CODE:
-        SV *debug;
-        if ((debug = get_sv("Imager::Heatmap::DEBUG", 0)) == NULL)
-            croak("Can't see $Imager::Heatmap::DEBUG");
-
-        debug_flag = SvIV(debug);
 
         RETVAL = generate_matrix(perlarray_matrix, xsize, ysize,
                                  xsigma, ysigma, correlation, insert_datas);
