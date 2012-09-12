@@ -13,7 +13,6 @@ our %DEFAULTS = (
     xsigma           => 1,
     ysigma           => 1,
     correlation      => 0.0,
-    max_data_at_time => undef,
 );
 
 XSLoader::load __PACKAGE__, $VERSION;
@@ -23,27 +22,15 @@ sub new {
 
     my $self = bless {}, $class;
 
-    if ($args{img}) {
-        $self->img(delete $args{img});
-        # Remove xsize and ysize (to not trigger croak for "Unkown options")
-        delete $args{xsize} && delete $args{ysize};
-    } else {
-        unless (exists $args{xsize} && exists $args{ysize}) {
-            croak "You need to specify xsize and ysize";
-        }
-        $self->xsize(delete $args{xsize});
-        $self->ysize(delete $args{ysize});
-        $self->img(Imager->new(
-            xsize    => $self->xsize,
-            ysize    => $self->ysize,
-            channels => 4,
-        ));
+    unless (exists $args{xsize} && exists $args{ysize}) {
+        croak "You need to specify xsize and ysize";
     }
+    $self->xsize(delete $args{xsize});
+    $self->ysize(delete $args{ysize});
 
-    $self->xsigma          ((exists $args{xsigma})           ? delete $args{xsigma}           : $DEFAULTS{xsigma});
-    $self->ysigma          ((exists $args{ysigma})           ? delete $args{ysigma}           : $DEFAULTS{ysigma});
-    $self->correlation     ((exists $args{correlation})      ? delete $args{correlation}      : $DEFAULTS{correlation});
-    $self->max_data_at_time((exists $args{max_data_at_time}) ? delete $args{max_data_at_time} : $DEFAULTS{max_data_at_time});
+    $self->xsigma     ((exists $args{xsigma})      ? delete $args{xsigma}      : $DEFAULTS{xsigma});
+    $self->ysigma     ((exists $args{ysigma})      ? delete $args{ysigma}      : $DEFAULTS{ysigma});
+    $self->correlation((exists $args{correlation}) ? delete $args{correlation} : $DEFAULTS{correlation});
 
     if (keys %args) {
         croak "You did specify some unkown options: " . join ',', keys %args;
@@ -104,35 +91,7 @@ sub correlation {
     return $self->{correlation}
 }
 
-sub max_data_at_time {
-    my $self = shift;
-
-    if (@_) {
-        if (defined $_[0] && $_[0] < 0) {
-            croak "max_data_at_time must be a positive number or undef(or 0, unlimited)";
-        }
-        $self->{max_data_at_time} = $_[0];
-    }
-    return $self->{max_data_at_time};
-}
-
 sub matrix { (shift)->{matrix} }
-
-sub img {
-    my $self = shift;
-
-    if (@_) {
-        if (!$_[0]->isa('Imager'))   { croak "img must be a blessed object of Imager(3)" }
-        if ($_[0]->getchannels != 4) { croak "img should be a 4-channels image" }
-
-        $self->{img} = $_[0];
-
-        # Need to update xsize and ysize when img updated
-        $self->xsize($_[0]->getwidth);
-        $self->ysize($_[0]->getheight);
-    }
-    return $self->{img};
-}
 
 sub add_data {
     my ($self, @insert_datas) = @_;
@@ -148,12 +107,14 @@ sub add_data {
 }
 
 sub draw {
-    my ($self) = @_;
+    my ($self, $img) = @_;
+
+    if (!$img || !$img->isa('Imager')) { croak "img must be a blessed object of Imager" }
+    if ($img->getchannels != 4)        { croak "img should be a 4-channels image" }
 
     my $matrix  = $self->matrix;
 
     my ($w, $h) = ($self->xsize, $self->ysize);
-    my $img     = $self->img;
     my $max     = max(@{ $matrix });
 
     unless ($max) {

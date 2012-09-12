@@ -97,8 +97,9 @@ calc_probability_density(density_matrix_t *dm, AV *insert_datas)
                     croak("Failed fetching value of matrix[%d]", x+w*y);
 
                 double pixel_val = 0.0;
-                if (SvOK(*pixel_valsv))
+                if (SvOK(*pixel_valsv)) {
                     pixel_val = SvNV(*pixel_valsv);
+                }
 
                 pixel_val += exp(
                     -(xd*xd/xsig_sq + yd*yd/ysig_sq - alpha*xd*yd/xysig_mul) / beta

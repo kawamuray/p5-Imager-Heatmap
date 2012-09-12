@@ -41,23 +41,17 @@ my $hmap = Imager::Heatmap->new(
 # perl t/02_image.t generate
 if (@ARGV && shift @ARGV eq 'generate') {
     $hmap->add_data( get_data_src 'sample.tsv' );
-    $hmap->img->write( file => File::Spec->catfile($resources_dir, 'sample.png') );
+    my $img = Imager->new(xsize => $hmap->xsize, ysize => $hmap->ysize, channels => 4);
+    $hmap->draw($img);
+    $img->write( file => File::Spec->catfile($resources_dir, 'sample.png') );
 } else {
 
     subtest "Basic image generation" => sub {
         $hmap->add_data( get_data_src 'sample.tsv' );
-        $hmap->draw;
-        $hmap->img->write(file => '/tmp/test.png');
-        is_image $hmap->img, read_img('sample.png'), "Result image comparison";
-    };
-
-    $hmap->img(Imager->new(xsize => $hmap->xsize, ysize => $hmap->ysize, channels => 4));
-
-    subtest "Image generation with limited data fetch" => sub {
-        $hmap->max_data_at_time(10);
-        $hmap->add_data( get_data_src 'sample.tsv' );
-        $hmap->draw;
-        is_image $hmap->img, read_img('sample.png'), "Result image comparison";
+        my $img = Imager->new(xsize => $hmap->xsize, ysize => $hmap->ysize, channels => 4);
+        $hmap->draw($img);
+        $img->write(file => '/tmp/test.png');
+        is_image $img, read_img('sample.png'), "Result image comparison";
     };
 
     done_testing;
