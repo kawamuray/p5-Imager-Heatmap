@@ -114,14 +114,14 @@ calc_probability_density(density_matrix_t *dm, AV *insert_datas)
 }
 
 static AV*
-generate_matrix(AV *perlarray_matrix, uint xsize, uint ysize, 
+generate_matrix(AV *matrix, uint xsize, uint ysize, 
                 double xsigma, double ysigma, double correlation, AV *insert_datas)
 {
     int i;
     void *ptr;
 
     density_matrix_t dm = {
-        .matrix      = perlarray_matrix,
+        .matrix      = matrix,
         .xsize       = xsize,
         .ysize       = ysize,
         .xsigma      = xsigma,
@@ -131,15 +131,15 @@ generate_matrix(AV *perlarray_matrix, uint xsize, uint ysize,
 
     calc_probability_density(&dm, insert_datas);
 
-    return perlarray_matrix;
+    return matrix;
 }
 
 MODULE = Imager::Heatmap		PACKAGE = Imager::Heatmap
 PROTOTYPES: DISABLE
 
 AV*
-xs_generate_matrix(perlarray_matrix, xsize, ysize, xsigma, ysigma, correlation, insert_datas)
-    AV          *perlarray_matrix;
+xs_generate_matrix(matrix, xsize, ysize, xsigma, ysigma, correlation, insert_datas)
+    AV          *matrix;
     unsigned int xsize;
     unsigned int ysize;
     double       xsigma;
@@ -149,7 +149,7 @@ xs_generate_matrix(perlarray_matrix, xsize, ysize, xsigma, ysigma, correlation, 
 
     CODE:
 
-        RETVAL = generate_matrix(perlarray_matrix, xsize, ysize,
+        RETVAL = generate_matrix(matrix, xsize, ysize,
                                  xsigma, ysigma, correlation, insert_datas);
     OUTPUT:
         RETVAL
