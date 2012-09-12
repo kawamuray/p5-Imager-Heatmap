@@ -110,27 +110,6 @@ calc_probability_density(density_matrix_t *dm, AV *insert_datas)
     }
 }
 
-static AV*
-generate_matrix(AV *matrix, uint xsize, uint ysize, 
-                double xsigma, double ysigma, double correlation, AV *insert_datas)
-{
-    int i;
-    void *ptr;
-
-    density_matrix_t dm = {
-        .matrix      = matrix,
-        .xsize       = xsize,
-        .ysize       = ysize,
-        .xsigma      = xsigma,
-        .ysigma      = ysigma,
-        .correlation = correlation,
-    };
-
-    calc_probability_density(&dm, insert_datas);
-
-    return matrix;
-}
-
 MODULE = Imager::Heatmap		PACKAGE = Imager::Heatmap
 PROTOTYPES: DISABLE
 
@@ -145,8 +124,17 @@ xs_generate_matrix(matrix, xsize, ysize, xsigma, ysigma, correlation, insert_dat
     AV          *insert_datas;
 
     CODE:
+        density_matrix_t dm = {
+            .matrix      = matrix,
+            .xsize       = xsize,
+            .ysize       = ysize,
+            .xsigma      = xsigma,
+            .ysigma      = ysigma,
+            .correlation = correlation,
+        };
 
-        RETVAL = generate_matrix(matrix, xsize, ysize,
-                                 xsigma, ysigma, correlation, insert_datas);
+        calc_probability_density(&dm, insert_datas);
+
+        RETVAL = matrix;
     OUTPUT:
         RETVAL
