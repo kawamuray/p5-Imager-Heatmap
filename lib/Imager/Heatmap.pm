@@ -164,29 +164,20 @@ Imager::Heatmap - Perl extension for drawing Heatmap using Imager
     );
 
     # Drawing heatmap
-    $hmap->draw(\@point_datas); # @point_datas should be: ( [ x1, y1, weight1 ], [ x2, y2, weight2 ] ... )
 
-    or 
+    # Add point datas to construct density matrix
+    $hmap->insert_datas(@piont_datas); # @point_datas should be: ( [ x1, y1, weight1 ], [ x2, y2, weight2 ] ... )
 
-    # Example to draw heatmap by data from file
-    open my $fh, '<', /path/to/data/file or die "Can't open file $file: $!";
+    $hmap->insert_datas(...); # You can call multiple times to add large data that cannot process at a time.
 
-    # Closure should return a data(x, y, weight(optional)) for each call
-    $hmap->draw(sub {
-        defined(my $line = <$fh>) or return; # Return undef to notify end of data
-        chomp $line;
-        my ($x, $y, $weight) = split /\s/, $line;
-        return ($x, $y, $weight);
-    });
+    # After adding datas, you could get heatmap as Imager instance.
+    my $img = $hmap->draw;
 
-    close $fh;
+    # Returned image is 4-channels image. So you can overlay it on other images.
+    $img->rubthrough( src => $hmap->img );  # Overlay on other images(see Imager::Transformations)
 
-    # After drawing finished, you can use img method to access Imager instance
-
-    $hmap->img->write( file => '/path/to/outfile' ); # Write to file
-    $img->rubthrough( src => $hmap->img );           # Overlay on other images
-
-    # And you can access probability density matrix using matrix method if you like...
+    # And you can access probability density matrix using matrix method if you like.
+    # In case, maybe you would like to create some graduations which be assigned to color of heatmap and its value.
     $hmap->matrix;
 
 =head1 DESCRIPTION
@@ -205,24 +196,16 @@ You can specify some options as follows.
 See the accessors section for more details about each parameters.
 
     $hmap = Imager::Heatmap->new( xsize => 300, ysize => 300 );
-    $hmap = Imager::Heatmap->new( img => $imager_instance );
 
 =head3 Options
 
 =over
 
-=item o img         (required if you don't specify xsize and ysize)
-
-A blessed object of Imager to render heatmap.
-Image's xsize and ysize will automatically set to Imager::Heatmap instance.
-
-Option xsize and ysize will ignored if you specify this option.
-
-=item o xsize       (required if you don't specify img)
+=item o xsize       (required)
 
 X-dimentional size of heatmap image.
  
-=item o ysize       (required if you don't specify img)
+=item o ysize       (required)
 
 Y-dimentional size of heatmap image.
 
@@ -237,10 +220,6 @@ Y-dimentional sigma value.
 =item o correlation (optional, default: 0.0)
 
 Correlation between X and Y.
-
-=item o max_data_at_time (optional, default: undef)
-
-Max number of data that could process at a time.
 
 =back
 
@@ -285,18 +264,6 @@ This value should be the number between -1 and 1. (includeing -1 and 1)
     $hmap->correlation(0.5);
     $correlation = $hmap->correlation;
 
-=head2 max_data_at_time()
-
-Set/Get the Max number of data that could process at a time.
-This value is used when you specify closure as data source to draw method.
-Imager::Heatmap doesn't fetch data further than this value,
-but continue to fetch remaining datas after processed existing datas.
-
-    $hmap->max_data_at_time(50000);
-    $max_data_at_time = $hmap->max_data_at_time;
-
-If you don't need to specify limit for fetching data, set undef(or 0) to let it unlimited.
-
 =head2 matrix()
 
 Get the processed probability density matrix.
@@ -308,56 +275,45 @@ Return value is flat array. You can access the value of pixel(x,y) as follows:
 
     $pixel_value = $matrix->[$y * $hmap->xsize + $x];
 
-=head2 img()
+=head1 2-dimensional Probability Desnsity Matrix
 
-Set/Get a Imager instance the target to draw a heatmap.
-The argument must be a blessed object of Imager and it should be a 4-channels image.
+Imager::Heatmap calculates probability density matrix of input datas.
 
-    $img = $hmap->img;
-    $hmap->img(Imager->new( xsize    => $xsize,
-                            ysize    => $ysize,
-                            channels => 4 ));
-
-=head2 generate_matrix()
-
-Calculates probability density matrix of input datas.
-This method will internally called by draw() method.
-
-    $matrix = $img->generate_matrix($data_source);
-
-You can find the equation used to calculate 2-dimentional probability density matrix
-can be found at following location:
+You can find the equation used to calculate 2-dimentional probability density matrix at following location:
 
     http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
 
-=head2 draw()
+=head2 insert_datas()
 
-Draw a heatmap from the passed data source.
+Construct the matrix that represents probability density of each pixels of image.
 This method may be take a while if the datas are large.
 
-    $img->draw($data_source);
+    $hmap->insert_datas([ $x1, $y1, $weight1 ], [ $x2, $y2 ], ...);
 
-The argument data_source should be a arrayref or a coderef.
-
-If it is a arrayref, each element of array should contain
+Each element of array should contain
 x([0]), y([1]), and optionally weight([2]) as follows:
     
-$data_source = [ [ x1, y1, weight1 ], [ x2, y2, weight2 ] ... ];
-
-Else if it is a code ref, it should return 2 or 3 elements as following for each call:
-
-$data_source = sub { (x, y) };
-
-or
-
-$data_source = sub { (x, y, weight) };
-
-It should return undef to notify end of data.
+@insert_datas = ( [ x1, y1, weight1 ], [ x2, y2, weight2 ] ... );
 
 Commonly, the default value of weight is 1.
 
 X, Y and weight will implicitly cast to integer in XS,
 so it doesn't make any sense specifying real numbers to these parameters.
+
+=head2 draw()
+
+Draw a heatmap from a constructed probability density matrix and return it.
+
+    my $img = $hmap->draw;
+
+Rerturn value is blessed object of Imager.
+It is created as following options($self is blessed object of Imager::Heatmap)
+
+    my $img = Imager->new(
+        xsize    => $self->xsize,
+        ysize    => $self->ysize,
+        channels => 4,
+    );
 
 =head1 SEE ALSO
 
