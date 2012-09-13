@@ -107,10 +107,13 @@ sub insert_datas {
 }
 
 sub draw {
-    my ($self, $img) = @_;
+    my $self = shift;
 
-    if (!$img || !$img->isa('Imager')) { croak "img must be a blessed object of Imager" }
-    if ($img->getchannels != 4)        { croak "img should be a 4-channels image" }
+    my $img = Imager->new(
+        xsize    => $self->xsize,
+        ysize    => $self->ysize,
+        channels => 4,
+    );
 
     my $matrix  = $self->matrix;
 
@@ -139,6 +142,8 @@ sub draw {
 
         $img->setscanline('y' => $y, pixels => \@linedata);
     }
+
+    return $img;
 }
 
 1;
