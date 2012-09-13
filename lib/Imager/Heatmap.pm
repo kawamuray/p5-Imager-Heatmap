@@ -234,6 +234,7 @@ Correlation between X and Y.
 =head2 xsize()
 
 Set/Get the X-dimentional size of heatmap image.
+Constructed matrix will expired after call this method as "Setter".
 
     $hmap->xsize(100);
     $xsize = $hmap->xsize;
@@ -241,6 +242,7 @@ Set/Get the X-dimentional size of heatmap image.
 =head2 ysize()
 
 Set/Get the Y-dimentional size of heatmap image.
+Constructed matrix will expired after call this method as "Setter".
 
     $hmap->ysize(100);
     $ysize = $hmap->ysize;
@@ -271,25 +273,6 @@ This value should be the number between -1 and 1. (includeing -1 and 1)
 
     $hmap->correlation(0.5);
     $correlation = $hmap->correlation;
-
-=head2 matrix()
-
-Get the processed probability density matrix.
-If you call this before any data has been processed, you will just get the undef.
-
-    $matrix = $hmap->matrix;
-
-Return value is flat array. You can access the value of pixel(x,y) as follows:
-
-    $pixel_value = $matrix->[$y * $hmap->xsize + $x];
-
-=head1 2-dimensional Probability Desnsity Matrix
-
-Imager::Heatmap calculates probability density matrix of input datas.
-
-You can find the equation used to calculate 2-dimentional probability density matrix at following location:
-
-    http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
 
 =head2 insert_datas()
 
@@ -323,9 +306,30 @@ It is created as following options($self is blessed object of Imager::Heatmap)
         channels => 4,
     );
 
+=head2 matrix()
+
+Get the processed probability density matrix.
+If you call this before any data has been processed, you will just get the undef.
+
+    $matrix = $hmap->matrix;
+
+Return value is flat array. You can access the value of pixel(x,y) as follows:
+
+    $pixel_value = $matrix->[$y * $hmap->xsize + $x];
+
+=head1 2-dimensional Probability Desnsity Matrix
+
+Imager::Heatmap calculates probability density matrix of input datas.
+
+You can find the equation used to calculate 2-dimentional probability density matrix at following location:
+
+    http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
+
 =head1 SEE ALSO
 
-Imager(3)
+Imager                   # Imager basic usage
+
+Imager::Transformations  # Practical use of created Imager instance
     
 The equation used to calculate 2-dimentional probability density matrix: 
     Multivariate normal distribution - Wikipedia, the free encyclopedia
