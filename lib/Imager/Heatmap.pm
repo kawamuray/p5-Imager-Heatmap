@@ -45,6 +45,8 @@ sub xsize {
     if (@_) {
         if ($_[0] < 0) { croak "xsize must be a positive number" }
         $self->{xsize} = $_[0];
+
+        $self->reset_matrix;
     }
     return $self->{xsize};
 }
@@ -55,6 +57,8 @@ sub ysize {
     if (@_) {
         if ($_[0] < 0) { croak "ysize must be a positive number" }
         $self->{ysize} = $_[0];
+
+        $self->reset_matrix;
     }
     return $self->{ysize};
 }
@@ -91,16 +95,20 @@ sub correlation {
     return $self->{correlation}
 }
 
+sub reset_matrix {
+    my $self = shift;
+
+    # Initialize array for size xsize * ysize and fill it by zero
+    $self->{matrix} = [ (0)x($self->xsize*$self->ysize) ];
+}
+
 sub matrix { (shift)->{matrix} }
 
 sub insert_datas {
     my ($self, @insert_datas) = @_;
 
-    # Initialize array for size xsize * ysize and fill it by zero
-    my $matrix = $self->matrix || [ (0)x($self->xsize*$self->ysize) ];
-
     $self->{matrix} = xs_generate_matrix(
-        $matrix, $self->xsize, $self->ysize,
+        $self->matrix, $self->xsize, $self->ysize,
         $self->xsigma, $self->ysigma, $self->correlation,
         \@insert_datas,
     );
