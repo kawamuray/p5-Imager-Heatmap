@@ -122,7 +122,12 @@ xs_generate_matrix(matrix, xsize, ysize, xsigma, ysigma, correlation, insert_dat
 
     CODE:
 
-        calc_probability_density(matrix, xsize, ysize, xsigma, ysigma, correlation, insert_datas);
+        calc_probability_density(
+            matrix,
+            xsize, ysize,
+            xsigma, ysigma, correlation,
+            insert_datas
+        );
 
         RETVAL = matrix;
     OUTPUT:
