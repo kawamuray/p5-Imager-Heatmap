@@ -5,7 +5,9 @@ use Test::Exception;
 
 use Imager::Heatmap;
 
-my $hmap = Imager::Heatmap->new( xsize => 300, ysize => 300 );
+sub hmap {
+    return Imager::Heatmap->new( xsize => 300, ysize => 300 );
+}
 
 subtest "Behavior of new" => sub {
     dies_ok sub { Imager::Heatmap->new( xsize => 100 ) }, "Die if ysize not specified";
@@ -32,18 +34,31 @@ subtest "Behavior of new" => sub {
 };
 
 subtest "Behavior of xsize and ysize" => sub {
+    my $hmap = hmap;
+
     dies_ok sub { $hmap->xsize(-1) }, "Negative number is not allowed for xsize";
+
+    my $matrix = $hmap->matrix;
 
     lives_ok sub { $hmap->xsize(100) }, "xsize should be a positive number";
     is $hmap->xsize, 100, "Accessor xsize worked";
 
+    isnt $hmap->matrix, $matrix, "Modifying xsize should invalidate existing matrix";
+
     dies_ok sub { $hmap->ysize(-1) }, "Negative number is not allowed for ysize";
+
+
+    $matrix = $hmap->matrix;
 
     lives_ok sub { $hmap->ysize(100) }, "ysize should be a positive number";
     is $hmap->ysize, 100, "Accessor ysize worked";
+
+    isnt $hmap->matrix, $matrix, "Modifying ysize should invalidate existing matrix";
 };
 
 subtest "Behavior of xsigma and ysigma" => sub {
+    my $hmap = hmap;
+
     dies_ok sub { $hmap->xsigma(-1.0) }, "Negative number is not allowed for xsigma";
 
     lives_ok sub { $hmap->xsigma(1.0) }, "xsigma should be a positive number";
@@ -56,6 +71,8 @@ subtest "Behavior of xsigma and ysigma" => sub {
 };
 
 subtest "Behavior of correlation" => sub {
+    my $hmap = hmap;
+
     dies_ok sub { $hmap->correlation(-1.1) }, "Number less    than -1 is not allowed for correlation";
     dies_ok sub { $hmap->correlation( 1.1) }, "Number greater than  1 is not allowed for correlation";
 
