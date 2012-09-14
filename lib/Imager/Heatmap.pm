@@ -46,7 +46,7 @@ sub xsize {
         if ($_[0] < 0) { croak "xsize must be a positive number" }
         $self->{xsize} = $_[0];
 
-        $self->reset_matrix;
+        $self->_invalidate_matrix;
     }
     return $self->{xsize};
 }
@@ -58,7 +58,7 @@ sub ysize {
         if ($_[0] < 0) { croak "ysize must be a positive number" }
         $self->{ysize} = $_[0];
 
-        $self->reset_matrix;
+        $self->_invalidate_matrix;
     }
     return $self->{ysize};
 }
@@ -95,14 +95,20 @@ sub correlation {
     return $self->{correlation}
 }
 
-sub reset_matrix {
+sub _invalidate_matrix {
+    (shift)->{matrix} = undef;
+}
+
+sub matrix {
     my $self = shift;
 
     # Initialize array for size xsize * ysize and fill it by zero
-    $self->{matrix} = [ (0)x($self->xsize*$self->ysize) ];
-}
+    unless (defined $self->{matrix}) {
+        $self->{matrix} = [ (0)x($self->xsize*$self->ysize) ];
+    }
 
-sub matrix { (shift)->{matrix} }
+    return $self->{matrix};
+}
 
 sub insert_datas {
     my ($self, @insert_datas) = @_;
@@ -234,7 +240,7 @@ Correlation between X and Y.
 =head2 xsize()
 
 Set/Get the X-dimentional size of heatmap image.
-Constructed matrix will expired after call this method as "Setter".
+Constructed matrix will invalidated after call this method as "Setter".
 
     $hmap->xsize(100);
     $xsize = $hmap->xsize;
@@ -242,7 +248,7 @@ Constructed matrix will expired after call this method as "Setter".
 =head2 ysize()
 
 Set/Get the Y-dimentional size of heatmap image.
-Constructed matrix will expired after call this method as "Setter".
+Constructed matrix will invalidated after call this method as "Setter".
 
     $hmap->ysize(100);
     $ysize = $hmap->ysize;
@@ -309,7 +315,6 @@ It is created as following options($self is blessed object of Imager::Heatmap)
 =head2 matrix()
 
 Get the processed probability density matrix.
-If you call this before any data has been processed, you will just get the undef.
 
     $matrix = $hmap->matrix;
 

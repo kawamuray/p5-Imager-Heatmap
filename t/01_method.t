@@ -66,4 +66,15 @@ subtest "Behavior of correlation" => sub {
     is $hmap->correlation, 0.0, "Accessor ysigma worked";
 };
 
+subtest "Behavior of matrix" => sub {
+    my $hmap = hmap;
+
+    my $matrix = $hmap->matrix;
+
+    is_deeply $matrix, [ (0)x90000 ], "Matrix hould be zero-filled xsize * ysize matrix before adding any datas.";
+    $hmap->insert_datas([ 10, 10 ]);
+
+    isnt $matrix->[10*300+10], 0.0, "Matrix should be modified after adding datas.";
+};
+
 done_testing;
