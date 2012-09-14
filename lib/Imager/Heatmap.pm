@@ -111,12 +111,12 @@ sub matrix {
 }
 
 sub insert_datas {
-    my ($self, @insert_datas) = @_;
+    my $self = shift;
 
     $self->{matrix} = xs_generate_matrix(
         $self->matrix, $self->xsize, $self->ysize,
         $self->xsigma, $self->ysigma, $self->correlation,
-        \@insert_datas,
+        \@_, # Insert datas
     );
 }
 
