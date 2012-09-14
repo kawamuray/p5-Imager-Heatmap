@@ -4,10 +4,12 @@ Makefile.PL
 MANIFEST
 ppport.h
 README
+t/Util.pm
 t/00_compile.t
 t/01_method.t
 t/02_matrix.t
 t/03_image.t
+t/04_xs.t
 t/resources/sample.tsv
 t/resources/sample.png
 lib/Imager/Heatmap.pm
