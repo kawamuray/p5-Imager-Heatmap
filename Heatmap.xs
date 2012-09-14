@@ -77,18 +77,18 @@ calc_probability_density(AV *matrix,
      * Multivariate normal distribution - Wikipedia, the free encyclopedia
      *    http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
      */
-    int point[3];
-    while (fetch_pdata(insert_datas, point)) {
-        int x_beg = max(0, point[0] - x_effect_range);
-        int x_end = min(w, point[0] + x_effect_range);
-        int y_beg = max(0, point[1] - y_effect_range);
-        int y_end = min(h, point[1] + y_effect_range);
+    int pdata[3];
+    while (fetch_pdata(insert_datas, pdata)) {
+        int x_beg = max(0, pdata[0] - x_effect_range);
+        int x_end = min(w, pdata[0] + x_effect_range);
+        int y_beg = max(0, pdata[1] - y_effect_range);
+        int y_end = min(h, pdata[1] + y_effect_range);
 
         int x, y;
         for (x = x_beg; x < x_end; x++) {
             for (y = y_beg; y < y_end; y++) {
-                int xd = x - point[0];
-                int yd = y - point[1];
+                int xd = x - pdata[0];
+                int yd = y - pdata[1];
 
                 SV *pixel_valsv = valid_av_fetch(matrix, x+w*y);
 
@@ -99,7 +99,7 @@ calc_probability_density(AV *matrix,
 
                 pixel_val += exp(
                     -(xd*xd/xsig_sq + yd*yd/ysig_sq - alpha*xd*yd/xysig_mul) / beta
-                ) * point[2];
+                ) * pdata[2];
 
                 sv_setnv(pixel_valsv, pixel_val);
             }
