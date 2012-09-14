@@ -8,13 +8,6 @@ use t::Util;
 subtest "Invalid datas" => sub {
     my $hmap = hmap;
 
-  SKIP: {
-      skip "Currently Imager::Heatmap does not die when undef passed(just finish processing";
-      throws_ok sub {
-          $hmap->insert_datas(undef);
-      }, qr/array reference/, "Die if insert_datas contain undef";
-    }
-
     throws_ok sub {
         $hmap->insert_datas('foobar');
     }, qr/array reference/, "Die if insert_datas non-ref value";
