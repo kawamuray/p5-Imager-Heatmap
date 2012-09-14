@@ -19,65 +19,70 @@ subtest "Behavior of new" => sub {
     my $hmap;
     lives_ok sub { $hmap = Imager::Heatmap->new( xsize => 100, ysize => 100 ) };
 
-    is $hmap->xsize, 100;
-    is $hmap->ysize, 100;
-    is $hmap->xsigma, 10.0;
-    is $hmap->ysigma, 5.0;
+    is $hmap->xsize,       100;
+    is $hmap->ysize,       100;
+    is $hmap->xsigma,      10.0;
+    is $hmap->ysigma,      5.0;
     is $hmap->correlation, 1.0;
 
-    throws_ok sub {
+    throws_ok {
         Imager::Heatmap->new( xsize => 100, ysize => 100, foobar => 1 )
-    }, qr/unkown options.*foobar/, "Die if unkowon options ware specified";
+    } qr/unkown options.*foobar/, "Die if unkowon options ware specified";
 };
 
-subtest "Behavior of xsize and ysize" => sub {
+subtest "Behavior of xsize" => sub {
     my $hmap = hmap;
 
-    dies_ok sub { $hmap->xsize(-1) }, "Negative number is not allowed for xsize";
+    dies_ok { $hmap->xsize(-1) }   "Negative number is not allowed for xsize";
 
     my $matrix = $hmap->matrix;
 
-    lives_ok sub { $hmap->xsize(100) }, "xsize should be a positive number";
-    is $hmap->xsize, 100, "Accessor xsize worked";
+    lives_ok { $hmap->xsize(100) } "xsize should be a positive number";
 
-    isnt $hmap->matrix, $matrix, "Modifying xsize should invalidate existing matrix";
+    is $hmap->xsize, 100,          "Accessor xsize worked";
 
-    dies_ok sub { $hmap->ysize(-1) }, "Negative number is not allowed for ysize";
+    isnt $hmap->matrix, $matrix,   "Modifying xsize should invalidate existing matrix";
+};
 
+subtest "Behavior of ysize" => sub {
+    my $hmap = hmap;
 
-    $matrix = $hmap->matrix;
+    dies_ok { $hmap->ysize(-1) }   "Negative number is not allowed for ysize";
 
-    lives_ok sub { $hmap->ysize(100) }, "ysize should be a positive number";
-    is $hmap->ysize, 100, "Accessor ysize worked";
+    my $matrix = $hmap->matrix;
 
-    isnt $hmap->matrix, $matrix, "Modifying ysize should invalidate existing matrix";
+    lives_ok { $hmap->ysize(100) };
+
+    is $hmap->ysize, 100,          "Accessor ysize worked";
+
+    isnt $hmap->matrix, $matrix ,  "Modifying ysize should invalidate existing matrix";
 };
 
 subtest "Behavior of xsigma and ysigma" => sub {
     my $hmap = hmap;
 
-    dies_ok sub { $hmap->xsigma(-1.0) }, "Negative number is not allowed for xsigma";
+    dies_ok { $hmap->xsigma(-1.0) } "Negative number is not allowed for xsigma";
 
-    lives_ok sub { $hmap->xsigma(1.0) }, "xsigma should be a positive number";
-    is $hmap->xsigma, 1.0, "Accessor xsigma worked";
+    lives_ok { $hmap->xsigma(1.0) };
+    is $hmap->xsigma, 1.0,          "Accessor xsigma worked";
 
-    dies_ok sub { $hmap->ysigma(-1.0) }, "Negative number is not allowed for ysigma";
+    dies_ok { $hmap->ysigma(-1.0) } "Negative number is not allowed for ysigma";
 
-    lives_ok sub { $hmap->ysigma(1.0) }, "ysigma should be a positive number";
-    is $hmap->ysigma, 1.0, "Accessor ysigma worked";
+    lives_ok { $hmap->ysigma(1.0) };
+    is $hmap->ysigma, 1.0,          "Accessor ysigma worked";
 };
 
 subtest "Behavior of correlation" => sub {
     my $hmap = hmap;
 
-    dies_ok sub { $hmap->correlation(-1.1) }, "Number less    than -1 is not allowed for correlation";
-    dies_ok sub { $hmap->correlation( 1.1) }, "Number greater than  1 is not allowed for correlation";
+    dies_ok { $hmap->correlation(-1.1) } "Number less    than -1 is not allowed for correlation";
+    dies_ok { $hmap->correlation( 1.1) } "Number greater than  1 is not allowed for correlation";
 
-    lives_ok sub { $hmap->correlation(-1) }, "correlation can be -1";
-    lives_ok sub { $hmap->correlation( 1) }, "correlation can be  1";
-    lives_ok sub { $hmap->correlation(0.0) }, "correlation can be 0.0";
+    lives_ok { $hmap->correlation(-1) }  "correlation can be -1";
+    lives_ok { $hmap->correlation( 1) }  "correlation can be  1";
+    lives_ok { $hmap->correlation(0.0) };
 
-    is $hmap->correlation, 0.0, "Accessor ysigma worked";
+    is $hmap->correlation, 0.0,          "Accessor correlation worked";
 };
 
 subtest "Behavior of matrix" => sub {
@@ -85,10 +90,10 @@ subtest "Behavior of matrix" => sub {
 
     my $matrix = $hmap->matrix;
 
-    is_deeply $matrix, [ (0)x90000 ], "Matrix hould be zero-filled xsize * ysize matrix before adding any datas.";
+    is_deeply $matrix, [ (0)x90000 ],        "Matrix should be zero-filled matrix before adding any datas.";
     $hmap->insert_datas([ 10, 10 ]);
 
-    isnt $matrix->[10*300+10], 0.0, "Matrix should be modified after adding datas.";
+    isnt $matrix->[10*$hmap->xsize+10], 0.0, "Matrix should be modified after adding datas.";
 };
 
 done_testing;
