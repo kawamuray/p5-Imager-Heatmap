@@ -136,7 +136,7 @@ sub draw {
 
     unless ($max) {
         carp "Nothing to be rendered";
-        return;
+        return $img;
     }
 
     my %color_cache;

@@ -52,5 +52,20 @@ if (@ARGV && shift @ARGV eq 'generate') {
         is_image $img, read_img('sample.png'), "Result image comparison";
     };
 
+    subtest "No data image generation" => sub {
+        my $hmap = hmap;
+
+        my $img;
+        warning_like sub {
+            $img = $hmap->draw;
+        }, qr/Nothing to be rendered/, "Nothing to be rendered if no data specified";
+
+        is_image $img, Imager->new(
+            xsize    => $hmap->xsize, 
+            ysize    => $hmap->ysize,
+            channels => 4,
+        ), "Returned image should be a blank image";
+    };
+
     done_testing;
 }
