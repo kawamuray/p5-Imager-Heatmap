@@ -3,11 +3,8 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
+use t::Util;
 use Imager::Heatmap;
-
-sub hmap {
-    return Imager::Heatmap->new( xsize => 300, ysize => 300 );
-}
 
 subtest "Behavior of new" => sub {
     dies_ok sub { Imager::Heatmap->new( xsize => 100 ) }, "Die if ysize not specified";

@@ -1,10 +1,13 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Warn;
 use Imager::Test qw/ is_image /;
+use Imager;
 use File::Spec;
 use File::Basename;
 
+use t::Util;
 use Imager::Heatmap;
 
 my $resources_dir = File::Spec->catdir(File::Basename::dirname(__FILE__), 'resources');
