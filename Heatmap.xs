@@ -9,16 +9,6 @@
 
 typedef unsigned int uint;
 
-typedef struct {
-    AV     *matrix;      /* Probability density matrix  */
-    uint    xsize;       /* Width of image              */
-    uint    ysize;       /* Height of image             */
-    double  xsigma;      /* X-dimentional sigma         */
-    double  ysigma;      /* Y-dimentional sigma         */
-    double  correlation; /* Correlation between x and y */
-} density_matrix_t;
-
-
 static inline SV*
 valid_av_fetch(AV *array, int index)
 {
@@ -63,16 +53,19 @@ static inline min(int a, int b) { return (a < b) ? a : b; }
 /* Calculate the probability density of each point insertion
  * for each pixels around it which to be get affected of insertion. */
 static void
-calc_probability_density(density_matrix_t *dm, AV *insert_datas)
+calc_probability_density(AV *matrix,
+                         uint xsize, uint ysize,
+                         double xsigma, double ysigma, double correlation,
+                         AV *insert_datas)
 {
-    const int w = dm->xsize, h = dm->ysize;
+    const int w = xsize, h = ysize;
 
     /* Calculate things to not calculate these again. */
-    const double xsig_sq   = dm->xsigma * dm->xsigma;
-    const double ysig_sq   = dm->ysigma * dm->ysigma;
-    const double xysig_mul = dm->xsigma * dm->ysigma;
-    const double alpha     = 2 * dm->correlation;
-    const double beta      = 2 * (1 - dm->correlation * dm->correlation);
+    const double xsig_sq   = xsigma * xsigma;
+    const double ysig_sq   = ysigma * ysigma;
+    const double xysig_mul = xsigma * ysigma;
+    const double alpha     = 2 * correlation;
+    const double beta      = 2 * (1 - correlation * correlation);
 
     /* (X|Y)-dimentional effective range of point insertion. */
     const uint x_effect_range = (uint)ceil(sqrt(-(EXP_IGNORE_THRESHOLD * beta) * xsig_sq));
@@ -97,7 +90,7 @@ calc_probability_density(density_matrix_t *dm, AV *insert_datas)
                 int xd = x - point[0];
                 int yd = y - point[1];
 
-                SV *pixel_valsv = valid_av_fetch(dm->matrix, x+w*y);
+                SV *pixel_valsv = valid_av_fetch(matrix, x+w*y);
 
                 double pixel_val = 0.0;
                 if (SvOK(pixel_valsv)) {
@@ -128,16 +121,8 @@ xs_generate_matrix(matrix, xsize, ysize, xsigma, ysigma, correlation, insert_dat
     AV          *insert_datas;
 
     CODE:
-        density_matrix_t dm = {
-            .matrix      = matrix,
-            .xsize       = xsize,
-            .ysize       = ysize,
-            .xsigma      = xsigma,
-            .ysigma      = ysigma,
-            .correlation = correlation,
-        };
 
-        calc_probability_density(&dm, insert_datas);
+        calc_probability_density(matrix, xsize, ysize, xsigma, ysigma, correlation, insert_datas);
 
         RETVAL = matrix;
     OUTPUT:
