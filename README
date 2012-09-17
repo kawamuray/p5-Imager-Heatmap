@@ -9,8 +9,8 @@ SYNOPSIS
     my $hmap = Imager::Heatmap->new(
         xsize  => 640,        # Image width
         ysize  => 480,        # Image height
-        xsigma => 10,         # X-dimentional sigma value
-        ysigma => 10,         # Y-dimentional sigma value
+        xsigma => 10,         # Sigma value of X-direction.
+        ysigma => 10,         # Sigma value of Y-direction.
     );
 
     # Add point datas to construct density matrix

@@ -172,11 +172,9 @@ Imager::Heatmap - Perl extension for drawing Heatmap using Imager
     my $hmap = Imager::Heatmap->new(
         xsize  => 640,        # Image width
         ysize  => 480,        # Image height
-        xsigma => 10,         # X-dimentional sigma value
-        ysigma => 10,         # Y-dimentional sigma value
+        xsigma => 10,         # Sigma value of X-direction
+        ysigma => 10,         # Sigma value of Y-direction
     );
-
-    # Drawing heatmap
 
     # Add point datas to construct density matrix
     $hmap->insert_datas(@piont_datas); # @point_datas should be: ( [ x1, y1, weight1 ], [ x2, y2, weight2 ] ... )
@@ -187,7 +185,7 @@ Imager::Heatmap - Perl extension for drawing Heatmap using Imager
     my $img = $hmap->draw;
 
     # Returned image is 4-channels image. So you can overlay it on other images.
-    $img->rubthrough( src => $hmap->img );  # Overlay on other images(see Imager::Transformations)
+    $base_img->rubthrough( src => $hmap->img );  # Overlay on other images(see Imager::Transformations)
 
     # And you can access probability density matrix using matrix method if you like.
     # In case, maybe you would like to create some graduations which be assigned to color of heatmap and its value.
@@ -204,11 +202,11 @@ map a color for each pixels to represent density of input data.
 
 =head2 new()
 
-Create new instance of Imager::Heatmap.
+Create a blessed object of Imager::Heatmap.
 You can specify some options as follows.
-See the accessors section for more details about each parameters.
+See the accessors description for more details about each parameters.
 
-    $hmap = Imager::Heatmap->new( xsize => 300, ysize => 300 );
+    $hmap = Imager::Heatmap->new(xsize => 300, ysize => 300);
 
 =head3 Options
 
@@ -216,19 +214,19 @@ See the accessors section for more details about each parameters.
 
 =item o xsize       (required)
 
-X-dimentional size of heatmap image.
+X-direction size of heatmap image.
  
 =item o ysize       (required)
 
-Y-dimentional size of heatmap image.
+Y-direction size of heatmap image.
 
 =item o xsigma      (optional, default: 1.0)
 
-X-dimentional sigma value.
+Sigma value of X-direction.
 
 =item o ysigma      (optional, default: 1.0)
 
-Y-dimentional sigma value.
+Sigma value of Y-direction.
 
 =item o correlation (optional, default: 0.0)
 
@@ -238,7 +236,7 @@ Correlation between X and Y.
 
 =head2 xsize()
 
-Set/Get the X-dimentional size of heatmap image.
+Set/Get the X-direction size of heatmap image.
 Constructed matrix will invalidated after call this method as "Setter".
 
     $hmap->xsize(100);
@@ -246,7 +244,7 @@ Constructed matrix will invalidated after call this method as "Setter".
 
 =head2 ysize()
 
-Set/Get the Y-dimentional size of heatmap image.
+Set/Get the Y-direction size of heatmap image.
 Constructed matrix will invalidated after call this method as "Setter".
 
     $hmap->ysize(100);
@@ -254,25 +252,27 @@ Constructed matrix will invalidated after call this method as "Setter".
 
 =head2 xsigma()
     
-Set/Get the X-dimentional sigma value.
-This value represents X-dimentional standard deviation.
+Set/Get the Sigma value of X-direction.
+This value represents the standard deviation of X-direction.
 This value should be positive number.
+You will see the heatmap that amplicifed for X-direction if you increment this number.
 
     $hmap->xsigma(10.0);
     $xsigma = $hmap->xsigma;
 
 =head2 ysigma()
     
-Set/Get the Y-dimentional sigma value.
-This value represents Y-dimentional standard deviation.
+Set/Get the Sigma value of Y-direction.
+This value represents the standard deviation of Y-direction.
 This value should be positive number.
+You will see the heatmap that amplicifed for Y-direction if you increment this number.
 
     $hmap->ysigma(10.0);
     $ysigma = $hmap->ysigma;
 
 =head2 correlation()
     
-Set/Get the correlation coefficient.
+Set/Get the correlation coefficient of XY;
 This value represents correlation between X and Y.
 This value should be the number between -1 and 1. (includeing -1 and 1)
 
@@ -291,7 +291,7 @@ x([0]), y([1]), and optionally weight([2]) as follows:
     
 @insert_datas = ( [ x1, y1, weight1 ], [ x2, y2, weight2 ] ... );
 
-Commonly, the default value of weight is 1.
+The default value of weight is 1.
 
 X, Y and weight will implicitly cast to integer in XS,
 so it doesn't make any sense specifying real numbers to these parameters.
@@ -325,7 +325,7 @@ Return value is flat array. You can access the value of pixel(x,y) as follows:
 
 Imager::Heatmap calculates probability density matrix of input datas.
 
-You can find the equation used to calculate 2-dimentional probability density matrix at following location:
+You can find the equation used to calculate 2-dimensional probability density matrix at following location:
 
     http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
 
@@ -333,7 +333,7 @@ You can find the equation used to calculate 2-dimentional probability density ma
 
 Imager(3), Imager::Transformations(3)
     
-The equation used to calculate 2-dimentional probability density matrix: 
+The equation used to calculate 2-dimensional probability density matrix: 
     Multivariate normal distribution - Wikipedia, the free encyclopedia
         http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
 
