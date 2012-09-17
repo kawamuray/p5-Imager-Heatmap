@@ -1,0 +1,6 @@
+MANIFEST.SKIP
+.travis.yml
+.shipit
+.git
+xt/
+README.md
