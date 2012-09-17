@@ -113,10 +113,10 @@ sub matrix {
 sub insert_datas {
     my $self = shift;
 
-    $self->{matrix} = xs_generate_matrix(
-        $self->matrix, $self->xsize, $self->ysize,
+    $self->{matrix} = xs_build_matrix(
+        $self->matrix, \@_, # Insert datas
+        $self->xsize, $self->ysize,
         $self->xsigma, $self->ysigma, $self->correlation,
-        \@_, # Insert datas
     );
 }
 

@@ -53,10 +53,9 @@ static inline min(int a, int b) { return (a < b) ? a : b; }
 /* Calculate the probability density of each point insertion
  * for each pixels around it which to be get affected of insertion. */
 static void
-calc_probability_density(AV *matrix,
+calc_probability_density(AV *matrix, AV *insert_datas,
                          uint xsize, uint ysize,
-                         double xsigma, double ysigma, double correlation,
-                         AV *insert_datas)
+                         double xsigma, double ysigma, double correlation)
 {
     const int w = xsize, h = ysize;
 
@@ -111,22 +110,21 @@ MODULE = Imager::Heatmap		PACKAGE = Imager::Heatmap
 PROTOTYPES: DISABLE
 
 AV*
-xs_generate_matrix(matrix, xsize, ysize, xsigma, ysigma, correlation, insert_datas)
+xs_build_matrix(matrix, insert_datas, xsize, ysize, xsigma, ysigma, correlation)
     AV          *matrix;
+    AV          *insert_datas;
     unsigned int xsize;
     unsigned int ysize;
     double       xsigma;
     double       ysigma;
     double       correlation;
-    AV          *insert_datas;
 
     CODE:
 
         calc_probability_density(
-            matrix,
+            matrix, insert_datas,
             xsize, ysize,
-            xsigma, ysigma, correlation,
-            insert_datas
+            xsigma, ysigma, correlation
         );
 
         RETVAL = matrix;
