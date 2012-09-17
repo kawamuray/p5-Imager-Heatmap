@@ -50,5 +50,21 @@ subtest "Heatmap generation with no datas(result is blank image)" => sub {
     ), "Returned image should be a blank image";
 };
 
+subtest "Heatmap generation with 0 x 0 matrix" => sub {
+    my $hmap = hmap;
+
+    $hmap->xsize(0);
+    $hmap->ysize(0);
+
+    $hmap->insert_datas(sample_data('sample.tsv'));
+
+    my $img;
+    warning_like sub {
+        $img = $hmap->draw;
+    }, qr/Nothing to be rendered/;
+
+    is $img, undef;
+};
+
 
 done_testing;
