@@ -21,7 +21,7 @@ valid_av_fetch(AV *array, int index)
 }
 
 static int
-fetch_pdata(AV *insert_datas, int buf[3])
+fetch_pdata(AV *insert_datas, int *px, int *py, int *pweight)
 {
     SV *pdata = av_shift(insert_datas);
 
@@ -36,9 +36,9 @@ fetch_pdata(AV *insert_datas, int buf[3])
         goto invdata;
 
     AV *pdata_av = (AV *)SvRV(pdata);
-    buf[0] = SvIV(valid_av_fetch(pdata_av, 0));
-    buf[1] = SvIV(valid_av_fetch(pdata_av, 1));
-    buf[2] = (datalen > 2) ? SvIV(valid_av_fetch(pdata_av, 2)) : 1;
+    *px      = SvIV(valid_av_fetch(pdata_av, 0));
+    *py      = SvIV(valid_av_fetch(pdata_av, 1));
+    *pweight = (datalen > 2) ? SvIV(valid_av_fetch(pdata_av, 2)) : 1;
 
     return 1;
 
@@ -77,18 +77,18 @@ calc_probability_density(AV *matrix,
      * Multivariate normal distribution - Wikipedia, the free encyclopedia
      *    http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
      */
-    int pdata[3];
-    while (fetch_pdata(insert_datas, pdata)) {
-        int x_beg = max(0, pdata[0] - x_effect_range);
-        int x_end = min(w, pdata[0] + x_effect_range);
-        int y_beg = max(0, pdata[1] - y_effect_range);
-        int y_end = min(h, pdata[1] + y_effect_range);
+    int px, py, pweight;
+    while (fetch_pdata(insert_datas, &px, &py, &pweight)) {
+        int x_beg = max(0, px - x_affect_range);
+        int x_end = min(w, px + x_affect_range);
+        int y_beg = max(0, py - y_affect_range);
+        int y_end = min(h, py + y_affect_range);
 
         int x, y;
         for (x = x_beg; x < x_end; x++) {
             for (y = y_beg; y < y_end; y++) {
-                int xd = x - pdata[0];
-                int yd = y - pdata[1];
+                int xd = x - px;
+                int yd = y - py;
 
                 SV *pixel_valsv = valid_av_fetch(matrix, x+w*y);
 
@@ -99,7 +99,7 @@ calc_probability_density(AV *matrix,
 
                 pixel_val += exp(
                     -(xd*xd/xsig_sq + yd*yd/ysig_sq - alpha*xd*yd/xysig_mul) / beta
-                ) * pdata[2];
+                ) * pweight;
 
                 sv_setnv(pixel_valsv, pixel_val);
             }
