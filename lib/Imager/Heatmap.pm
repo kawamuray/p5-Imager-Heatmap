@@ -10,9 +10,9 @@ use List::Util qw/ max /;
 
 our $VERSION = '0.01';
 our %DEFAULTS = (
-    xsigma           => 1,
-    ysigma           => 1,
-    correlation      => 0.0,
+    xsigma      => 1,
+    ysigma      => 1,
+    correlation => 0.0,
 );
 
 XSLoader::load __PACKAGE__, $VERSION;
