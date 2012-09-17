@@ -1,7 +1,10 @@
 Change history of Imager::Heatmap
 ==================================
 
-0.01  Sat Jun 23 15:03:53 2012
+0.02  Mon Sep 17 2012
+        - Initial release
+
+0.01  Sat Jun 23 2012
 	- original version; created by h2xs 1.23 with options
 		-b 5.8.0 -c -a --skip-exporter -n Imager::Heatmap
 
