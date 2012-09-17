@@ -332,9 +332,7 @@ You can find the equation used to calculate 2-dimentional probability density ma
 
 =head1 SEE ALSO
 
-Imager                   # Imager basic usage
-
-Imager::Transformations  # Practical use of created Imager instance
+Imager(3), Imager::Transformations(3)
     
 The equation used to calculate 2-dimentional probability density matrix: 
     Multivariate normal distribution - Wikipedia, the free encyclopedia
