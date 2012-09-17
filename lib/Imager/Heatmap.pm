@@ -142,9 +142,8 @@ sub draw {
     my %color_cache;
     for (my $y = 0; $y < $h; $y++) {
         my @linedata = map {
-            my $div = $_/$max;
-            my $hue   = int((1-$div)*240);
-            my $alpha = int(sqrt($div)*255);
+            my $hue   = int((1 - $_/$max)*240);
+            my $alpha = int(sqrt($_/$max)*255);
 
             $color_cache{"$hue $alpha"} ||= Imager::Color->new(
                 hue        => $hue,
