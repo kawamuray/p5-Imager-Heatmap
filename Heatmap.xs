@@ -27,7 +27,6 @@ fetch_pdata(AV *insert_datas, int *px, int *py, int *pweight)
 
     if (!SvOK(pdata)) return 0; /* End of data */
 
-    /* Validate data */
     if (!SvROK(pdata) || SvTYPE(SvRV(pdata)) != SVt_PVAV)
         goto invdata;
 
