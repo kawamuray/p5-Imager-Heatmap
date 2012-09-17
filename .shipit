@@ -1,0 +1,5 @@
+steps = FindVersion, ChangeVersion, CheckChangeLog, DistTest, Commit, Tag, MakeDist
+
+git.tagpattern = Imager-Heatmap-%v
+git.push_to = origin
+
