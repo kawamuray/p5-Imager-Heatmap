@@ -10,7 +10,7 @@
 typedef unsigned int uint;
 
 static inline SV*
-valid_av_fetch(AV *array, int index)
+valid_av_fetch(const AV *array, int index)
 {
     SV **item = av_fetch(array, index, 1);
     if (item == NULL) {
