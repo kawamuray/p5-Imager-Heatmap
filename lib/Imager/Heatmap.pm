@@ -293,8 +293,10 @@ x([0]), y([1]), and optionally weight([2]) as follows:
 
 The default value of weight is 1.
 
-X, Y and weight will implicitly cast to integer in XS,
+x and y will implicitly cast to integer in XS,
 so it doesn't make any sense specifying real numbers to these parameters.
+
+weight can be a real number.
 
 =head2 draw()
 

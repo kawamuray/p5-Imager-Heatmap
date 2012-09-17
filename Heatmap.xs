@@ -21,7 +21,7 @@ valid_av_fetch(const AV *array, int index)
 }
 
 static int
-fetch_pdata(AV *insert_datas, int *px, int *py, int *pweight)
+fetch_pdata(AV *insert_datas, int *px, int *py, double *pweight)
 {
     SV *pdata = av_shift(insert_datas);
 
@@ -37,7 +37,7 @@ fetch_pdata(AV *insert_datas, int *px, int *py, int *pweight)
     AV *pdata_av = (AV *)SvRV(pdata);
     *px      = SvIV(valid_av_fetch(pdata_av, 0));
     *py      = SvIV(valid_av_fetch(pdata_av, 1));
-    *pweight = (datalen > 2) ? SvIV(valid_av_fetch(pdata_av, 2)) : 1;
+    *pweight = (datalen > 2) ? SvNV(valid_av_fetch(pdata_av, 2)) : 1;
 
     return 1;
 
@@ -75,7 +75,8 @@ calc_probability_density(AV *matrix, AV *insert_datas,
      * Multivariate normal distribution - Wikipedia, the free encyclopedia
      *    http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Bivariate_case
      */
-    int px, py, pweight;
+    int    px, py;
+    double pweight;
     while (fetch_pdata(insert_datas, &px, &py, &pweight)) {
         int x_beg = max(0, px - x_affect_range);
         int x_end = min(w, px + x_affect_range);
