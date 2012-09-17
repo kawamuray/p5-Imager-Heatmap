@@ -5,7 +5,7 @@
 #include <math.h>   /* exp(3), sqrt(3), ceil(3) */
 
 /* Ignore calculating pixel value if its value is less than this. */
-#define EXP_IGNORE_THRESHOLD -36.04365338911715
+const double EXP_IGNORE_THRESHOLD = -36.04365338911715; /* log(DBL_EPSILON) */
 
 typedef unsigned int uint;
 
