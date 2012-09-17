@@ -68,8 +68,8 @@ calc_probability_density(AV *matrix,
     const double beta      = 2 * (1 - correlation * correlation);
 
     /* (X|Y)-dimentional effective range of point insertion. */
-    const uint x_effect_range = (uint)ceil(sqrt(-(EXP_IGNORE_THRESHOLD * beta) * xsig_sq));
-    const uint y_effect_range = (uint)ceil(sqrt(-(EXP_IGNORE_THRESHOLD * beta) * ysig_sq));
+    const uint x_affect_range = (uint)ceil(sqrt(-(EXP_IGNORE_THRESHOLD * beta) * xsig_sq));
+    const uint y_affect_range = (uint)ceil(sqrt(-(EXP_IGNORE_THRESHOLD * beta) * ysig_sq));
 
     /*
      * The equation used to calculate 2-dimentional probability density
