@@ -4,12 +4,22 @@
 #include "ppport.h"
 #include <math.h>   /* exp(3), sqrt(3), ceil(3) */
 
+/* From Module::Install::XSUtil. Thanks to gfx. */
+#ifndef STATIC_INLINE /* from 5.13.4 */
+# if defined(__GNUC__) || defined(__cplusplus) || (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))
+#   define STATIC_INLINE static inline
+# else
+#   define STATIC_INLINE static
+# endif
+#endif /* STATIC_INLINE */
+
+
 /* Ignore calculating pixel value if its value is less than this. */
 const double EXP_IGNORE_THRESHOLD = -36.04365338911715; /* log(DBL_EPSILON) */
 
 typedef unsigned int uint;
 
-static inline SV*
+STATIC_INLINE SV*
 valid_av_fetch(AV *array, int index)
 {
     SV **item = av_fetch(array, index, 1);
@@ -46,8 +56,8 @@ invdata:
           "which contains x, y, and optionally weight");
 }
 
-static inline max(int a, int b) { return (a > b) ? a : b; }
-static inline min(int a, int b) { return (a < b) ? a : b; }
+STATIC_INLINE max(int a, int b) { return (a > b) ? a : b; }
+STATIC_INLINE min(int a, int b) { return (a < b) ? a : b; }
 
 /* Calculate the probability density of each point insertion
  * for each pixels around it which to be get affected of insertion. */
