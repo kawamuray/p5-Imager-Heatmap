@@ -8,7 +8,7 @@ use Carp;
 use Imager;
 use List::Util qw/ max /;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 our %DEFAULTS = (
     xsigma      => 1,
     ysigma      => 1,

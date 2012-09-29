@@ -1,6 +1,9 @@
 Change history of Imager::Heatmap
 ==================================
 
+0.03  Mon Sep 17 2012
+        - Fix some issue of inline function in XS
+
 0.02  Mon Sep 17 2012
         - Initial release
 
